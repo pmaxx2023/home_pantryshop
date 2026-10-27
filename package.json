@@ -1,0 +1,17 @@
+{
+  "name": "home_pantryshop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PantryShop. A shared grocery list for the phone and the kitchen wall.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --local --port 8787",
+    "deploy": "wrangler deploy",
+    "db:local": "wrangler d1 execute pantryshop --local --file=./schema.sql",
+    "db:remote": "wrangler d1 execute pantryshop --remote --file=./schema.sql",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.154.0"
+  }
+}

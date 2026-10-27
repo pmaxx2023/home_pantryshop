@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>PantryShop</title>
+  <meta name="theme-color" content="#f2eee6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="PantryShop">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon-192.png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app" id="app">
+
+    <section id="start" class="start hidden">
+      <h1>PantryShop</h1>
+      <p>One grocery list for the whole house.</p>
+      <button class="big primary" id="startNew">Start a new list</button>
+      <input id="joinCode" placeholder="OR ENTER A CODE" maxlength="8" autocapitalize="characters" autocomplete="off">
+      <button class="big" id="joinBtn">Join with code</button>
+    </section>
+
+    <section id="main" class="hidden">
+      <header class="top">
+        <div>
+          <h1 id="hhName">Home</h1>
+          <div class="sub"><span id="count">0 to get</span> · code <b id="hhCode"></b></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="iconbtn" id="shareBtn" title="Share">Share</button>
+          <button class="iconbtn warn" id="clearBtn" title="Clear checked">Clear</button>
+        </div>
+      </header>
+
+      <div class="addbar">
+        <input id="addInput" placeholder="Add an item, like 2 milk" autocomplete="off" autocorrect="off" enterkeyhint="done">
+        <button class="go" id="addBtn" aria-label="Add">+</button>
+        <div class="suggest" id="suggest"></div>
+      </div>
+
+      <div class="favs" id="favs"></div>
+
+      <div id="groups"></div>
+      <div class="empty hidden" id="empty">Nothing on the list. Add something above.</div>
+    </section>
+  </div>
+
+  <div class="status" id="status" hidden></div>
+
+  <div class="sheet-bg" id="sheetBg" hidden>
+    <div class="sheet" role="dialog">
+      <h3 id="sheetTitle">Item</h3>
+      <label for="sName">Name</label>
+      <input id="sName">
+      <label for="sQty">How much</label>
+      <input id="sQty" placeholder="2, 1 lb, a bag">
+      <label for="sAisle">Aisle</label>
+      <select id="sAisle"></select>
+      <div class="actions">
+        <button id="sFav">☆ Favorite</button>
+        <button class="danger" id="sDelete">Delete</button>
+      </div>
+      <div class="actions">
+        <button id="sCancel">Cancel</button>
+        <button class="primary" id="sSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
