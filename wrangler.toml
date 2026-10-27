@@ -10,4 +10,4 @@ run_worker_first = ["/api/*"]
 [[d1_databases]]
 binding = "DB"
 database_name = "pantryshop"
-database_id = "replace-with-your-d1-database-id"
+database_id = "47ccc80a-c303-4052-b889-6ab04b082bdc"
