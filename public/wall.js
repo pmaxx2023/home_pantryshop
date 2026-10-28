@@ -14,6 +14,16 @@ async function boot() {
     const code = $('joinCode').value.toUpperCase().replace(/[^A-Z0-9]/g, '');
     if (code.length >= 4) location.href = `/wall?h=${code}`;
   };
+  $('startNew').onclick = async () => {
+    try {
+      const { household } = await api.createHousehold('Home');
+      store.save({ code: household.code, household });
+      location.href = `/wall?h=${household.code}`;
+    } catch (err) {
+      $('status').hidden = false;
+      $('status').textContent = err.message;
+    }
+  };
   $('joinCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('joinBtn').click(); });
   if (!state.code) {
     $('main').classList.add('hidden');

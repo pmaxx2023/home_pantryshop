@@ -7,7 +7,7 @@ One grocery list for the whole house. It runs on your phone and on the kitchen w
 - Tap to check off. Checked items drop to the bottom. Clear them after the trip.
 - Favorites sit in a row at the top for one-tap re-adds.
 - Works offline on the phone. Changes sync when the network is back.
-- A wall view sized for a 1280 by 800 frame. Tap an item on the wall and it's checked on the phone.
+- A wall view sized for a 1280 by 800 frame. It can start the list on its own. Tap an item on the wall and it is checked everywhere.
 
 No accounts. A household is a six-character code. Anyone with the code can see and edit the list.
 
@@ -40,7 +40,7 @@ Needs a Cloudflare account. Free tier is enough.
 
 Wrangler prints the URL, something like `https://home-pantryshop.<account>.workers.dev`.
 
-## Put it on the phone
+## Put it on a phone or any browser
 
 Open the URL in the phone's browser. Tap **Start a new list**. Then add it to the home screen:
 
