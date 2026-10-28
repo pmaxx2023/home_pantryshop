@@ -1,6 +1,6 @@
 // Caches the app shell so the list opens offline. API calls always go to the network.
-const CACHE = 'pantryshop-shell-v1';
-const SHELL = ['/', '/index.html', '/wall', '/wall.html', '/app.js', '/wall.js', '/api.js', '/style.css', '/manifest.webmanifest', '/wall.webmanifest', '/icon-192.png', '/icon-512.png'];
+const CACHE = 'pantryshop-shell-v2';
+const SHELL = ['/', '/index.html', '/wall', '/wall.html', '/app.js', '/wall.js', '/api.js', '/style.css', '/manifest.webmanifest', '/wall.webmanifest', '/wall.css', '/catalog.js', '/fonts/fonts.css', '/fonts/caveat-latin-500-normal.woff2', '/fonts/caveat-latin-600-normal.woff2', '/fonts/barlow-semi-condensed-latin-400-normal.woff2', '/fonts/barlow-semi-condensed-latin-500-normal.woff2', '/fonts/barlow-semi-condensed-latin-600-normal.woff2', '/fonts/barlow-semi-condensed-latin-700-normal.woff2', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).catch(() => {}));

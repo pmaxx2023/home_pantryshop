@@ -10,6 +10,8 @@ test('guesses common aisles', () => {
   assert.equal(guessAisle('chicken thighs'), 'Meat & Seafood');
   assert.equal(guessAisle('frozen peas'), 'Frozen');
   assert.equal(guessAisle('something odd'), 'Other');
+  assert.equal(guessAisle('chocolate chips'), 'Pantry');
+  assert.equal(guessAisle('birthday candles'), 'Other');
 });
 
 test('aisle list ends with Other', () => {

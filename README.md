@@ -8,6 +8,11 @@ One grocery list for the whole house. It runs on your phone and on the kitchen w
 - Favorites sit in a row at the top for one-tap re-adds.
 - Works offline on the phone. Changes sync when the network is back.
 - A wall view sized for a 1280 by 800 frame. It can start the list on its own. Tap an item on the wall and it is checked everywhere.
+- More than one list per house: Grocery, Costco, Hardware, whatever you name.
+- A pantry of about 140 common items with pictures. Tap to add, tap again to bump the count. No typing for most adds.
+- Buy again from history. Notes on items. Undo after a check-off, a clear, or a delete.
+- Weekly staples: flag milk and eggs once and they land on the list every Sunday at 6 AM Central.
+- Night mode on the wall from 10 PM to 6 AM. Tap to wake it for a minute.
 
 No accounts. A household is a six-character code. Anyone with the code can see and edit the list.
 
@@ -74,10 +79,19 @@ All routes return JSON. `CODE` is the household code.
 | GET | `/api/h/CODE/suggest?q=mi` | Names the house has used before. |
 | GET | `/api/h/CODE/favorites` | Favorite items. |
 | POST | `/api/h/CODE/favorites` | Body: `{ "name", "favorite": true }`. |
+| GET | `/api/h/CODE/lists` | The household's lists. |
+| POST | `/api/h/CODE/lists` | Make a list. Body: `{ "name", "icon" }`. |
+| PATCH | `/api/h/CODE/lists/ID` | Rename or re-icon a list. |
+| DELETE | `/api/h/CODE/lists/ID` | Remove a list and everything on it. The last list can't be removed. |
+| GET | `/api/h/CODE/recent` | Last 24 things the house added, newest first. |
+| GET | `/api/h/CODE/memory` | Everything the house has ever added. |
+| POST | `/api/h/CODE/memory` | Body: `{ "name", "favorite", "weekly" }`. Flags on a remembered item. |
+| POST | `/api/h/CODE/run-weekly` | Add this household's weekly staples now instead of waiting for Sunday. |
 
 ## Known limits
 
 - The code is the only secret. Treat the join link like a house key.
 - Sync is polling every 5 seconds, not push. Good enough for two people and a wall.
-- The wall view shows about 40 items before it runs out of room.
+- The wall view shows about 40 items per list before it runs out of room.
+- Items added by typing use a keyword guess for the aisle. Pantry tiles always land in the right aisle.
 - The aisle guesser is a keyword list. It will be wrong sometimes. Fix the aisle once and it remembers.

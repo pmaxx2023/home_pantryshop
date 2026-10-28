@@ -11,3 +11,7 @@ run_worker_first = ["/api/*"]
 binding = "DB"
 database_name = "pantryshop"
 database_id = "47ccc80a-c303-4052-b889-6ab04b082bdc"
+
+# Weekly staples land on the list Sunday at 6:00 AM Central (11:00 UTC).
+[triggers]
+crons = ["0 11 * * 0"]

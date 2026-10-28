@@ -3,75 +3,106 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=1280, initial-scale=1, user-scalable=no">
-  <title>PantryShop Wall</title>
-  <meta name="theme-color" content="#f2eee6">
+  <title>PantryShop</title>
+  <meta name="theme-color" content="#d8c6a4">
   <link rel="manifest" href="/wall.webmanifest">
   <link rel="icon" href="/icon-192.png">
-  <link rel="stylesheet" href="/style.css">
-  <style>
-    html, body { height: 100%; overflow: hidden; }
-    body { font-size: 22px; }
-    .wall { display: grid; grid-template-rows: 84px 1fr 92px; height: 100vh; width: 100vw; padding: 0 28px; }
-    .wall header { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-    .wall h1 { font-size: 34px; margin: 0; letter-spacing: -0.01em; }
-    .wall .meta { color: var(--muted); font-size: 20px; }
-    .wall .clock { font-size: 34px; font-variant-numeric: tabular-nums; color: var(--muted); }
-    .wall .addbar { margin: 0; width: 420px; }
-    .wall .addbar input { height: 56px; font-size: 22px; }
-    .wall .addbar .go { height: 44px; width: 48px; }
-    .wall .suggest button { height: 54px; font-size: 20px; }
-
-    .board { overflow: hidden; column-count: 3; column-gap: 24px; column-fill: balance; padding-top: 10px; }
-    .board .group { break-inside: avoid; margin: 0 0 18px; }
-    .board .group h2 { font-size: 15px; }
-    .board .row { grid-template-columns: 60px 1fr auto; min-height: 60px; }
-    .board .row .box { height: 60px; }
-    .board .row .box span { width: 30px; height: 30px; font-size: 20px; }
-    .board .row .name { font-size: 24px; padding: 12px 6px 12px 0; }
-    .board .row .qty { font-size: 19px; padding-right: 16px; }
-    .board .empty { column-span: all; font-size: 26px; padding: 120px 0; }
-
-    footer { display: flex; align-items: center; gap: 14px; border-top: 1px solid var(--line); }
-    footer .favs { padding: 0; flex: 1; }
-    footer .chip { height: 48px; font-size: 20px; padding: 0 18px; }
-    footer .iconbtn { height: 48px; font-size: 18px; flex: 0 0 auto; }
-    footer .join { color: var(--muted); font-size: 16px; flex: 0 0 auto; text-align: right; line-height: 1.25; }
-    footer .join b { font-size: 20px; letter-spacing: .12em; }
-  </style>
+  <link rel="stylesheet" href="/fonts/fonts.css">
+  <link rel="stylesheet" href="/wall.css">
 </head>
 <body>
+
   <div class="wall" id="main">
-    <header>
-      <div>
-        <h1>Grocery list</h1>
-        <div class="meta"><span id="count">0 to get</span></div>
+    <aside class="rail">
+      <div class="brand">PantryShop</div>
+      <nav class="lists" id="lists"></nav>
+      <button class="newlist" id="newList">+ New list</button>
+      <div class="code">Open anywhere with code<br><b id="code"></b></div>
+    </aside>
+
+    <header class="head">
+      <div class="title">
+        <h1 id="listName">Grocery</h1>
+        <div class="count" id="count">nothing to get</div>
       </div>
-      <div class="addbar">
-        <input id="addInput" placeholder="Out of something? Add it" autocomplete="off" autocorrect="off" enterkeyhint="done">
-        <button class="go" id="addBtn" aria-label="Add">+</button>
-        <div class="suggest" id="suggest"></div>
-      </div>
+      <button class="btn-add" id="openPantry"><span class="plus">+</span> Add</button>
       <div class="clock" id="clock"></div>
     </header>
 
-    <div class="board" id="groups"></div>
+    <section class="board" id="board"></section>
 
-    <footer>
-      <div class="favs" id="favs"></div>
-      <button class="iconbtn warn" id="clearBtn">Clear checked</button>
-      <div class="join">Same list on any browser<br><b id="joinUrl"></b></div>
+    <footer class="foot">
+      <div class="again">Buy again</div>
+      <div class="chips" id="recent"></div>
+      <button class="btn-clear" id="clear" disabled>Clear checked</button>
     </footer>
   </div>
 
-  <div class="start hidden" id="start" style="padding:120px 200px">
-    <h1>PantryShop</h1>
-    <p>One grocery list for the whole house.</p>
-    <button class="big primary" id="startNew">Start a new list</button>
-    <input id="joinCode" placeholder="OR ENTER A CODE" maxlength="8" autocapitalize="characters" autocomplete="off">
-    <button class="big" id="joinBtn">Show that list</button>
+  <div class="pantry" id="pantry" hidden>
+    <div class="bar">
+      <input id="search" placeholder="Type to find or add anything" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done">
+      <button class="typed" id="addTyped" hidden></button>
+      <button class="btn-done" id="closePantry">Done</button>
+    </div>
+    <div class="jump" id="jump"></div>
+    <div class="shelves" id="shelves"></div>
+  </div>
+
+  <div class="sheet-bg" id="itemSheet" hidden>
+    <div class="sheet">
+      <h3 id="sTitle">Item</h3>
+      <div class="two">
+        <div class="field"><label>Name</label><input id="sName"></div>
+        <div class="field"><label>How many</label>
+          <div class="stepper"><button id="sMinus">−</button><input id="sQty" placeholder="any"><button id="sPlus">+</button></div>
+        </div>
+      </div>
+      <div class="field"><label>Note</label><input id="sNote" placeholder="the green one, from Costco, for Friday"></div>
+      <div class="two">
+        <div class="field"><label>Aisle</label><select id="sAisle"></select></div>
+        <div class="field"><label>List</label><select id="sList"></select></div>
+      </div>
+      <div class="toggles">
+        <button class="tog" id="sFav">☆ Favorite</button>
+        <button class="tog" id="sWeekly">↻ Every week</button>
+      </div>
+      <div class="actions">
+        <button class="danger" id="sDelete">Delete</button>
+        <button id="sCancel">Cancel</button>
+        <button class="primary" id="sSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sheet-bg" id="listSheet" hidden>
+    <div class="sheet">
+      <h3 id="lTitle">New list</h3>
+      <div class="field"><label>Name</label><input id="lName" placeholder="Costco, Hardware, Party"></div>
+      <div class="field"><label>Icon</label><div class="icons" id="lIcons"></div></div>
+      <div class="actions">
+        <button class="danger" id="lDelete">Delete</button>
+        <button id="lCancel">Cancel</button>
+        <button class="primary" id="lSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden><span id="toastText"></span><button id="undo">Undo</button></div>
+
+  <div class="night" id="night" hidden><div><div class="t" id="nightClock"></div><div class="s">Tap to wake</div></div></div>
+
+  <div class="start hidden" id="start">
+    <div class="card">
+      <h1>PantryShop</h1>
+      <p>The grocery list, on the kitchen wall.</p>
+      <button class="big primary" id="startNew">Start a new list</button>
+      <input id="joinCode" placeholder="or enter a code" maxlength="8" autocapitalize="characters" autocomplete="off">
+      <button class="big" id="joinBtn">Show that list</button>
+    </div>
   </div>
 
   <div class="status" id="status" hidden></div>
+
   <script type="module" src="/wall.js"></script>
 </body>
 </html>

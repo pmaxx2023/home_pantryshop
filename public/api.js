@@ -1,23 +1,13 @@
-// Shared API client with an offline queue.
-// Reads and writes go through here from both the phone app and the wall view.
+// Shared API client plus a small local store.
 
 const STORE_KEY = 'pantryshop:v1';
 
 export const store = {
   load() {
-    try {
-      return JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
-    } catch {
-      return {};
-    }
+    try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch { return {}; }
   },
   save(patch) {
-    try {
-      const cur = store.load();
-      localStorage.setItem(STORE_KEY, JSON.stringify({ ...cur, ...patch }));
-    } catch {
-      // Storage can be unavailable in private mode. The app still works for the session.
-    }
+    try { localStorage.setItem(STORE_KEY, JSON.stringify({ ...store.load(), ...patch })); } catch { /* private mode */ }
   },
 };
 
@@ -28,10 +18,7 @@ export function codeFromUrl() {
 
 export function currentCode() {
   const fromUrl = codeFromUrl();
-  if (fromUrl) {
-    store.save({ code: fromUrl });
-    return fromUrl;
-  }
+  if (fromUrl) { store.save({ code: fromUrl }); return fromUrl; }
   return store.load().code || '';
 }
 
@@ -49,31 +36,33 @@ async function call(method, path, body) {
 export const api = {
   createHousehold: (name) => call('POST', '/api/household', { name }),
   household: (code) => call('GET', `/api/h/${code}`),
+  rename: (code, name) => call('POST', `/api/h/${code}/rename`, { name }),
+
+  lists: (code) => call('GET', `/api/h/${code}/lists`),
+  createList: (code, name, icon) => call('POST', `/api/h/${code}/lists`, { name, icon }),
+  updateList: (code, id, patch) => call('PATCH', `/api/h/${code}/lists/${id}`, patch),
+  deleteList: (code, id) => call('DELETE', `/api/h/${code}/lists/${id}`),
+
   items: (code) => call('GET', `/api/h/${code}/items`),
   add: (code, item) => call('POST', `/api/h/${code}/items`, item),
   update: (code, id, patch) => call('PATCH', `/api/h/${code}/items/${id}`, patch),
   remove: (code, id) => call('DELETE', `/api/h/${code}/items/${id}`),
-  clearChecked: (code) => call('POST', `/api/h/${code}/clear-checked`),
+  clearChecked: (code, list_id) => call('POST', `/api/h/${code}/clear-checked`, { list_id }),
+
   suggest: (code, q) => call('GET', `/api/h/${code}/suggest?q=${encodeURIComponent(q)}`),
+  memory: (code) => call('GET', `/api/h/${code}/memory`),
+  setFlags: (code, name, flags) => call('POST', `/api/h/${code}/memory`, { name, ...flags }),
+  recent: (code) => call('GET', `/api/h/${code}/recent`),
   favorites: (code) => call('GET', `/api/h/${code}/favorites`),
   setFavorite: (code, name, favorite) => call('POST', `/api/h/${code}/favorites`, { name, favorite }),
-  rename: (code, name) => call('POST', `/api/h/${code}/rename`, { name }),
 };
 
-// ---------- offline queue ----------
-// Each op is replayed in order when the network comes back.
-// Adds carry a client-made id so a retry never makes a twin.
+// ---------- offline queue (used by the phone app) ----------
 
 export const queue = {
-  all() {
-    return store.load().queue || [];
-  },
-  push(op) {
-    store.save({ queue: [...queue.all(), op] });
-  },
-  clear() {
-    store.save({ queue: [] });
-  },
+  all() { return store.load().queue || []; },
+  push(op) { store.save({ queue: [...queue.all(), op] }); },
+  clear() { store.save({ queue: [] }); },
   async flush(code) {
     const ops = queue.all();
     if (!ops.length) return 0;
@@ -83,15 +72,12 @@ export const queue = {
         if (op.kind === 'add') await api.add(code, op.item);
         else if (op.kind === 'update') await api.update(code, op.id, op.patch);
         else if (op.kind === 'remove') await api.remove(code, op.id);
-        else if (op.kind === 'clear') await api.clearChecked(code);
+        else if (op.kind === 'clear') await api.clearChecked(code, op.list_id);
         else if (op.kind === 'favorite') await api.setFavorite(code, op.name, op.favorite);
         done++;
       } catch (err) {
-        if (err.status && err.status >= 400 && err.status < 500) {
-          done++; // Server rejected it for good. Drop it instead of retrying forever.
-          continue;
-        }
-        break; // Network is still down. Keep the rest for later.
+        if (err.status && err.status >= 400 && err.status < 500) { done++; continue; }
+        break;
       }
     }
     store.save({ queue: ops.slice(done) });
@@ -107,8 +93,7 @@ export function uuid() {
   });
 }
 
-// Pull a leading count off the name: "2 milk" -> { name: "milk", qty: "2" }.
-// Also "milk x2" and "milk (2)".
+// "2 milk" -> { name: "milk", qty: "2" }. Also "milk x2" and "milk (2)".
 export function splitQty(raw) {
   let s = String(raw || '').trim();
   let qty = '';
@@ -116,4 +101,13 @@ export function splitQty(raw) {
   if (m) { qty = m[1].trim(); s = m[2].trim(); }
   else if ((m = s.match(/^(.+?)\s*(?:x\s*(\d+)|\((\d+)\))$/i))) { s = m[1].trim(); qty = m[2] || m[3]; }
   return { name: s, qty };
+}
+
+export function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+export function debounce(fn, ms) {
+  let t;
+  return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
 }
